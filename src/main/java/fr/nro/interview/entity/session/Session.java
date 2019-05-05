@@ -3,6 +3,7 @@ package fr.nro.interview.entity.session;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -38,7 +39,7 @@ public class Session extends PanacheEntity{
   @JoinColumn(name="survey_id")
   private Survey survey;
   
-  @OneToMany(mappedBy="session")
+  @OneToMany(mappedBy="session", cascade=CascadeType.ALL)
   private List<StudentContext> studentContexts;
 
   public LocalDate getCreatedDate() {

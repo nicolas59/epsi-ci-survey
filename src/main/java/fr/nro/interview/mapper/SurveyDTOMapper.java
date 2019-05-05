@@ -13,9 +13,14 @@ import fr.nro.interview.entity.interview.Survey;
 @Singleton
 public class SurveyDTOMapper implements Function<SurveyDTO, Survey> {
 
-  @Inject
   QuestionDTOMapper questionDTOMapper;
   
+  @Inject
+  public SurveyDTOMapper(QuestionDTOMapper questionDTOMapper) {
+    super();
+    this.questionDTOMapper = questionDTOMapper;
+  }
+
   @Override
   public Survey apply(SurveyDTO t) {
     Survey interview  = new Survey();

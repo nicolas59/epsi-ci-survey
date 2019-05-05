@@ -39,7 +39,7 @@ public class StudentResource {
   }
 
   @GET
-  public List<Student> findAll(@PathParam("id") Long id) {
+  public List<Student> findAll() {
     return this.studentService.findAll();
   }
 

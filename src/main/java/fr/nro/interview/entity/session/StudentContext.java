@@ -1,6 +1,7 @@
 package fr.nro.interview.entity.session;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,9 +27,23 @@ public class StudentContext extends PanacheEntity {
 
   @Column
   private LocalDate endDate;
-  
+
   @Column
   private LocalDate deathLine;
+
+  @Column(unique = true)
+  private String uuid;
+
+  public StudentContext() {
+    super();
+  }
+
+  public StudentContext(Student student, Session session) {
+    super();
+    this.student = student;
+    this.session = session;
+    this.uuid = UUID.randomUUID().toString();
+  }
 
   public Student getStudent() {
     return student;
@@ -68,6 +83,14 @@ public class StudentContext extends PanacheEntity {
 
   public void setDeathLine(LocalDate deathLine) {
     this.deathLine = deathLine;
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
   }
 
 }

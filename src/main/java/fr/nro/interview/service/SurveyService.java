@@ -2,8 +2,8 @@ package fr.nro.interview.service;
 
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 
@@ -17,7 +17,7 @@ import fr.nro.interview.mapper.SurveyDTOMapper;
 import fr.nro.interview.repository.QuestionRepository;
 import fr.nro.interview.repository.SurveyRepository;
 
-@ApplicationScoped
+@Singleton
 public class SurveyService {
 
   @Inject
@@ -31,6 +31,14 @@ public class SurveyService {
 
   @Inject
   QuestionDTOMapper questionMapper;
+
+  public SurveyService(SurveyRepository surveyRepository, QuestionRepository questionRepository, SurveyDTOMapper mapper, QuestionDTOMapper questionMapper) {
+    super();
+    this.surveyRepository = surveyRepository;
+    this.questionRepository = questionRepository;
+    this.mapper = mapper;
+    this.questionMapper = questionMapper;
+  }
 
   public void save(@Valid SurveyDTO interviewDTO) throws ConstraintViolationException {
     Survey interview = this.mapper.apply(interviewDTO);
@@ -47,13 +55,12 @@ public class SurveyService {
 
     Survey survey = this.surveyRepository.findById(interviewId);
     if (survey == null) {
-      throw new ConstraintViolationException(
-          Set.of(ContraintViolationUtils.createConstraint("survey", "Survey does not exist", Survey.class)));
+      throw new ConstraintViolationException(Set.of(ContraintViolationUtils.createConstraint("survey", "Survey does not exist", Survey.class)));
     }
 
     question.setSurvey(survey);
     this.questionRepository.persist(question);
-    
+
     questionDTO.setId(question.id);
   }
 
