@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -43,6 +44,19 @@ public class SessionResource {
   @Path("/{id}/start")
   public Response startSession(Long sessionId) {
     return null;
+  }
+  
+  /**
+   * Permet d'ajouter une classe à un sondage
+   * 
+   * @param session
+   * @return
+   */
+  @POST
+  @Path("/{id}/category/{categoryId")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public void addGrade(@PathParam("id") Long sessionId, @PathParam("categoryId") Long categoryId) {
+    this.sessionService.addCategory(sessionId, categoryId);
   }
 
 }

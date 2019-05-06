@@ -2,8 +2,8 @@ package fr.nro.interview.service;
 
 import java.util.Set;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 
@@ -17,7 +17,7 @@ import fr.nro.interview.mapper.SurveyDTOMapper;
 import fr.nro.interview.repository.QuestionRepository;
 import fr.nro.interview.repository.SurveyRepository;
 
-@Singleton
+@ApplicationScoped
 public class SurveyService {
 
   @Inject
@@ -31,6 +31,10 @@ public class SurveyService {
 
   @Inject
   QuestionDTOMapper questionMapper;
+
+  public SurveyService() {
+    super();
+  }
 
   public SurveyService(SurveyRepository surveyRepository, QuestionRepository questionRepository, SurveyDTOMapper mapper, QuestionDTOMapper questionMapper) {
     super();

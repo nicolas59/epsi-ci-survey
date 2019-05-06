@@ -4,13 +4,13 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.function.Function;
 
-import javax.inject.Singleton;
+import javax.enterprise.context.ApplicationScoped;
 
 import fr.nro.interview.dto.interview.QuestionDTO;
 import fr.nro.interview.entity.interview.Item;
 import fr.nro.interview.entity.interview.Question;
 
-@Singleton
+@ApplicationScoped
 public class QuestionDTOMapper implements Function<QuestionDTO, Question> {
 
   @Override

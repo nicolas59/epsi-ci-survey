@@ -4,18 +4,24 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.function.Function;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import fr.nro.interview.dto.interview.SurveyDTO;
 import fr.nro.interview.entity.interview.Survey;
 
-@Singleton
+
+@ApplicationScoped
 public class SurveyDTOMapper implements Function<SurveyDTO, Survey> {
 
+  @Inject
   QuestionDTOMapper questionDTOMapper;
   
-  @Inject
+  
+  public SurveyDTOMapper() {
+    super();
+  }
+
   public SurveyDTOMapper(QuestionDTOMapper questionDTOMapper) {
     super();
     this.questionDTOMapper = questionDTOMapper;
