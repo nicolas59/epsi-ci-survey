@@ -1,5 +1,6 @@
 package fr.nro.interview.service;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -59,7 +60,9 @@ public class SurveyService {
 
     Survey survey = this.surveyRepository.findById(interviewId);
     if (survey == null) {
-      throw new ConstraintViolationException(Set.of(ContraintViolationUtils.createConstraint("survey", "Survey does not exist", Survey.class)));
+      Set violations = new HashSet<>();
+      violations.add(ContraintViolationUtils.createConstraint("survey", "Survey does not exist", Survey.class));
+      throw new ConstraintViolationException(violations);
     }
 
     question.setSurvey(survey);
