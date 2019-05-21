@@ -1,5 +1,8 @@
 package fr.nro.interview.dto.interview;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import fr.nro.interview.dto.Identifier;
 
 public class ItemDTO extends Identifier<Long>{
@@ -9,8 +12,10 @@ public class ItemDTO extends Identifier<Long>{
    */
   private static final long serialVersionUID = 924446458270946558L;
   
+  @NotNull
   private Integer order;
   
+  @NotBlank
   private String label;
 
   public Integer getOrder() {

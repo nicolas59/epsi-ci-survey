@@ -5,42 +5,61 @@ import static java.util.stream.Collectors.toList;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.nro.interview.dto.Identifier;
+import fr.nro.interview.dto.session.AnswerDTO;
 import fr.nro.interview.dto.session.SessionDTO;
 import fr.nro.interview.entity.Category;
 import fr.nro.interview.entity.Student;
+import fr.nro.interview.entity.interview.Question;
 import fr.nro.interview.entity.interview.Survey;
 import fr.nro.interview.entity.session.Session;
+import fr.nro.interview.entity.session.SessionCtxQuestion;
 import fr.nro.interview.entity.session.StudentContext;
 import fr.nro.interview.repository.CategoryRepository;
 import fr.nro.interview.repository.SessionRepository;
+import fr.nro.interview.repository.StudentContextRepository;
 import fr.nro.interview.repository.StudentRepository;
 import fr.nro.interview.repository.SurveyRepository;
 
 @ApplicationScoped
 public class SessionService {
-  
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
+
   @Inject
   SurveyRepository surveyRepository;
- 
+
   @Inject
   StudentRepository studentRepository;
- 
+
   @Inject
   SessionRepository sessionRepository;
 
   @Inject
   CategoryRepository categoryRepository;
+
+  @Inject
+  StudentContextRepository studentCtxRepository;
+  
+  @Inject
+  EntityManager em;
 
   public SessionService() {
     super();
@@ -58,6 +77,7 @@ public class SessionService {
     final Session session = new Session();
     session.setCreatedDate(LocalDate.now());
     session.setDuration(sessionDto.getDuration());
+    session.setStatus(Session.Status.CREATING);
 
     final Survey survey = this.surveyRepository.findById(sessionDto.getSurveyId()
       .getId());
@@ -95,7 +115,7 @@ public class SessionService {
    * @param sessionId
    * @param gradeId
    */
-  public void addCategory(Long sessionId, Long categoryId) {
+  public void addCategory(@NotNull Long sessionId, @NotNull Long categoryId) {
     Session session = this.sessionRepository.findById(sessionId);
     if (session == null) {
       throw new NotFoundException("Survey not found");
@@ -123,6 +143,48 @@ public class SessionService {
     studentContexts.addAll(newStudentContexts);
     session.setStudentContexts(new ArrayList<>(studentContexts));
     this.sessionRepository.persist(session);
+  }
 
+  public void startSession(Long sessionId) {
+    LOGGER.debug("Prepare session ...");
+    Session session = this.sessionRepository.findById(sessionId);
+
+    if (!Session.Status.CREATING.equals(session.getStatus())) {
+      throw new RuntimeException("Session already started...");
+    }
+
+    List<Question> questions = session.getSurvey()
+      .getQuestions();
+    for (StudentContext ctx : session.getStudentContexts()) {
+      Set<SessionCtxQuestion> set = new HashSet<>();
+      for (int index = 0; index < questions.size(); index++) {
+        Question question = questions.get(index);
+        SessionCtxQuestion ctxQues = new SessionCtxQuestion(ctx, question, index);
+        set.add(ctxQues);
+      }
+      ctx.setSessionCtxQuestion(set);
+    }
+
+    this.sessionRepository.persist(session);
+
+  }
+
+  public void answer(AnswerDTO answerDTO) {
+    StudentContext stCtx = this.studentCtxRepository.findByUuid(answerDTO.getUuid());
+    if(stCtx == null) {
+      throw new NotFoundException("Context not found");
+    }
+    
+    SessionCtxQuestion sessionCtxQ = stCtx.getSessionCtxQuestion()
+      .stream()
+      .filter(item -> Objects.equals(item.getSessionCtxAsso().getQuestionId(),answerDTO.getQuestionId().getId()))
+      .findFirst().orElseThrow(() -> new NotFoundException("Question not found for context"));
+    
+    //TODO Verify session expiration.
+    
+    sessionCtxQ.setAnswer(answerDTO.getAnswer());
+    
+    this.em.persist(sessionCtxQ);
+    
   }
 }

@@ -12,6 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -35,9 +36,14 @@ public class CategoryResource {
 
   @GET
   @Path("{id}")
-  public CategoryDTO findById(@PathParam("id") Long id) {
-    return this.categoryService.findById(id)
-      .orElseThrow(() -> new NotFoundException("Category not found"));
+  public Response findById(@PathParam("id") Long id) {
+    CategoryDTO category = this.categoryService.findById(id)
+    .orElseThrow(() -> new NotFoundException("Category not found"));
+    
+    CacheControl cacheControl = new CacheControl();
+    cacheControl.setMaxAge(120);
+    
+    return Response.ok(category).cacheControl(cacheControl).build();
   }
 
   @POST

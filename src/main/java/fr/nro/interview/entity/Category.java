@@ -4,12 +4,14 @@ import java.util.Collection;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 @Entity
 public class Category  extends PanacheEntity{
 
+  @NotNull
   private String name;
   
   

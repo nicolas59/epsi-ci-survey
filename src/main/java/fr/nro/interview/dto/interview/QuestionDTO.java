@@ -1,7 +1,9 @@
 package fr.nro.interview.dto.interview;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -14,7 +16,8 @@ public class QuestionDTO extends Identifier<Long>{
    */
   private static final long serialVersionUID = -6963304060233724024L;
   
-  private List<ItemDTO> items;
+  @Valid
+  private ArrayList<ItemDTO> items;
   
   @NotBlank
   private String label;
@@ -60,7 +63,7 @@ public class QuestionDTO extends Identifier<Long>{
   }
 
 
-  public void setItems(List<ItemDTO> items) {
+  public void setItems(ArrayList<ItemDTO> items) {
     this.items = items;
   }
 

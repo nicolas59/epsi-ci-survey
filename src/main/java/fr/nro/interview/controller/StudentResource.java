@@ -41,6 +41,7 @@ public class StudentResource {
 
   @GET
   public List<StudentDTO> findAll() {
+    
     return this.studentService.findAll();
   }
 

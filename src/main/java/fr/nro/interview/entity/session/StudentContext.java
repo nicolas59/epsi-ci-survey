@@ -1,12 +1,16 @@
 package fr.nro.interview.entity.session;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 
 import fr.nro.interview.entity.Student;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -30,6 +34,10 @@ public class StudentContext extends PanacheEntity {
 
   @Column
   private LocalDate deathLine;
+  
+  @OneToMany(mappedBy="studentContext", cascade=CascadeType.ALL)
+  @OrderBy("position asc")
+  private Set<SessionCtxQuestion> sessionCtxQuestion;
 
   @Column(unique = true)
   private String uuid;
@@ -91,6 +99,14 @@ public class StudentContext extends PanacheEntity {
 
   public void setUuid(String uuid) {
     this.uuid = uuid;
+  }
+
+  public Set<SessionCtxQuestion> getSessionCtxQuestion() {
+    return sessionCtxQuestion;
+  }
+
+  public void setSessionCtxQuestion(Set<SessionCtxQuestion> sessionCtxQuestion) {
+    this.sessionCtxQuestion = sessionCtxQuestion;
   }
 
 }

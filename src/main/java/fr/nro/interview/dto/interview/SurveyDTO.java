@@ -1,19 +1,20 @@
 package fr.nro.interview.dto.interview;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 
 import fr.nro.interview.dto.Identifier;
 
 public class SurveyDTO extends Identifier<Long>{
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 369770988214886699L;
-
+  @NotBlank
   private String name;
   
-  private List<QuestionDTO> questions;
+  @Valid
+  private ArrayList<QuestionDTO> questions;
 
   public String getName() {
     return name;
@@ -27,7 +28,7 @@ public class SurveyDTO extends Identifier<Long>{
     return questions;
   }
 
-  public void setQuestions(List<QuestionDTO> questions) {
+  public void setQuestions(ArrayList<QuestionDTO> questions) {
     this.questions = questions;
   }
   

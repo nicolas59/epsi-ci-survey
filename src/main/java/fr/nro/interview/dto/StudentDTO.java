@@ -1,8 +1,8 @@
 package fr.nro.interview.dto;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 
 import fr.nro.interview.validator.CategoryIdentifier;
 
@@ -24,9 +24,10 @@ public class StudentDTO extends Identifier<Long>{
   private String firstName;
 
   @NotEmpty(message="email can not be empty")
-  @Pattern(regexp="^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$", message="Email format invalid")
+  @Email(message="Email format invalid")
   private String email;
 
+  
   public Identifier<Long> getCategory() {
     return category;
   }

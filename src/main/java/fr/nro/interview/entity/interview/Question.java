@@ -9,12 +9,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 @Entity
 public class Question extends PanacheEntity{
 
+  @NotNull
+  @Size(max=250)
   private String label;
   
   @OneToMany(mappedBy="question", cascade= CascadeType.ALL)
@@ -26,6 +30,7 @@ public class Question extends PanacheEntity{
   private Survey survey;
   
   @Column
+  @NotNull
   private Integer score;
   
   @Column

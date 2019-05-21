@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import fr.nro.interview.dto.session.AnswerDTO;
 import fr.nro.interview.dto.session.SessionDTO;
 import fr.nro.interview.service.SessionService;
 
@@ -20,9 +21,9 @@ import fr.nro.interview.service.SessionService;
 public class SessionResource {
 
   SessionService sessionService;
-  
+
   public SessionResource() {
-    
+
   }
 
   @Inject
@@ -42,10 +43,12 @@ public class SessionResource {
 
   @POST
   @Path("/{id}/start")
-  public Response startSession(Long sessionId) {
-    return null;
+  public Response startSession(@PathParam("id") Long sessionId) {
+    this.sessionService.startSession(sessionId);
+    return Response.ok()
+      .build();
   }
-  
+
   /**
    * Permet d'ajouter une classe à un sondage
    * 
@@ -53,10 +56,18 @@ public class SessionResource {
    * @return
    */
   @POST
-  @Path("/{id}/category/{categoryId")
+  @Path("/{id}/category/{categoryId}")
   @Consumes(MediaType.APPLICATION_JSON)
   public void addGrade(@PathParam("id") Long sessionId, @PathParam("categoryId") Long categoryId) {
     this.sessionService.addCategory(sessionId, categoryId);
+  }
+
+  @POST
+  @Path("/{id}/answer")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response postAnswer(@PathParam("sessionId") Long sessionId, AnswerDTO answer) {
+    this.sessionService.answer(answer);
+    return Response.ok().build();
   }
 
 }

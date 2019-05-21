@@ -3,8 +3,8 @@ package fr.nro.interview.controller;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -44,7 +44,8 @@ public class SurveyResource {
   @POST
   @Path("{id}/question")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response addQuestion(@PathParam("id") Long identifier, QuestionDTO questionDTO) {
+  public Response addQuestion(@NotNull @PathParam("id") Long identifier, 
+                              QuestionDTO questionDTO) {
     try {
       this.interviewService.addQuestion(identifier, questionDTO);
       return Response.created(UriBuilder.fromUri("/interview/{id}/question/{questionId}")
@@ -56,10 +57,7 @@ public class SurveyResource {
         .build();
     }
   }
+  
+ 
 
-  @GET
-  @Produces(MediaType.TEXT_PLAIN)
-  public String hello() {
-    return "hello";
-  }
 }
