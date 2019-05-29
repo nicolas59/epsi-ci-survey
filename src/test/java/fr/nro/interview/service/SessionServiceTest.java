@@ -1,6 +1,6 @@
 package fr.nro.interview.service;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class SessionServiceTest {
 
