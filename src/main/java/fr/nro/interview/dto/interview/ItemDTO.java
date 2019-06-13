@@ -17,6 +17,9 @@ public class ItemDTO extends Identifier<Long>{
   
   @NotBlank
   private String label;
+  
+  @NotBlank
+  private String reference;
 
   public Integer getOrder() {
     return order;
@@ -32,6 +35,14 @@ public class ItemDTO extends Identifier<Long>{
 
   public void setLabel(String label) {
     this.label = label;
+  }
+
+  public String getReference() {
+    return reference;
+  }
+
+  public void setReference(String reference) {
+    this.reference = reference;
   }
   
   

@@ -1,6 +1,6 @@
 package fr.nro.interview.entity.session;
 
-import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import fr.nro.interview.entity.Student;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -27,13 +29,16 @@ public class StudentContext extends PanacheEntity {
   private Session session;
 
   @Column
-  private LocalDate startedDate;
+  @Temporal(TemporalType.TIMESTAMP)
+  private Calendar startedDate;
 
   @Column
-  private LocalDate endDate;
+  @Temporal(TemporalType.TIMESTAMP)
+  private Calendar endDate;
 
   @Column
-  private LocalDate deathLine;
+  @Temporal(TemporalType.TIMESTAMP)
+  private Calendar deathLine;
   
   @OneToMany(mappedBy="studentContext", cascade=CascadeType.ALL)
   @OrderBy("position asc")
@@ -69,27 +74,27 @@ public class StudentContext extends PanacheEntity {
     this.session = session;
   }
 
-  public LocalDate getStartedDate() {
+  public Calendar getStartedDate() {
     return startedDate;
   }
 
-  public void setStartedDate(LocalDate startedDate) {
+  public void setStartedDate(Calendar startedDate) {
     this.startedDate = startedDate;
   }
 
-  public LocalDate getEndDate() {
+  public Calendar getEndDate() {
     return endDate;
   }
 
-  public void setEndDate(LocalDate endDate) {
+  public void setEndDate(Calendar endDate) {
     this.endDate = endDate;
   }
 
-  public LocalDate getDeathLine() {
+  public Calendar getDeathLine() {
     return deathLine;
   }
 
-  public void setDeathLine(LocalDate deathLine) {
+  public void setDeathLine(Calendar deathLine) {
     this.deathLine = deathLine;
   }
 

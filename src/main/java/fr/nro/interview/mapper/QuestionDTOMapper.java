@@ -23,7 +23,7 @@ public class QuestionDTOMapper implements Function<QuestionDTO, Question> {
     if (t.getItems() != null) {
       question.setItems(t.getItems()
         .stream()
-        .map(item -> new Item(item.getOrder(), item.getLabel(), question))
+        .map(item -> new Item(item.getOrder(), item.getLabel(), item.getReference(), question))
         .collect(toSet()));
     }
     return question;

@@ -41,6 +41,7 @@ public class StudentService {
       return null;
     }
     StudentDTO studentDTO = new StudentDTO();
+    studentDTO.setId(student.id);
     studentDTO.setName(student.getName());
     studentDTO.setFirstName(student.getFirstName());
     studentDTO.setEmail(student.getEmail());
@@ -55,6 +56,13 @@ public class StudentService {
   public List<StudentDTO> findAll() {
     return studentRepository.findAll()
       .list()
+      .stream()
+      .map(mapperDto)
+      .collect(toList());
+  }
+
+  public List<StudentDTO> findByCategory(Long categoryId) {
+    return this.studentRepository.findByCategory(Category.findById(categoryId))
       .stream()
       .map(mapperDto)
       .collect(toList());

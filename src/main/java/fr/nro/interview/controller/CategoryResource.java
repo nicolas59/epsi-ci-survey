@@ -20,6 +20,7 @@ import javax.ws.rs.core.UriBuilder;
 import fr.nro.interview.dto.CategoryDTO;
 import fr.nro.interview.dto.ErrorDTO;
 import fr.nro.interview.service.CategoryService;
+import fr.nro.interview.service.StudentService;
 
 @Transactional
 @Path("/category")
@@ -28,6 +29,9 @@ public class CategoryResource {
 
   @Inject
   CategoryService categoryService;
+
+  @Inject
+  StudentService studentService;
 
   @GET
   public List<CategoryDTO> findAll() {
@@ -44,6 +48,13 @@ public class CategoryResource {
     cacheControl.setMaxAge(120);
     
     return Response.ok(category).cacheControl(cacheControl).build();
+  }
+  
+  
+  @GET
+  @Path("{id}/students")
+  public Response getStudents(@PathParam("id") Long id) {
+    return Response.ok(this.studentService.findByCategory(id)).build();
   }
 
   @POST

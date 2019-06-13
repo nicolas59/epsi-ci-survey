@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import fr.nro.interview.dto.Identifier;
 import fr.nro.interview.dto.session.AnswerDTO;
+import fr.nro.interview.dto.session.ExamDTO;
+import fr.nro.interview.dto.session.ExamDTO.Status;
 import fr.nro.interview.dto.session.SessionDTO;
 import fr.nro.interview.entity.Category;
 import fr.nro.interview.entity.Student;
@@ -32,6 +35,7 @@ import fr.nro.interview.entity.interview.Survey;
 import fr.nro.interview.entity.session.Session;
 import fr.nro.interview.entity.session.SessionCtxQuestion;
 import fr.nro.interview.entity.session.StudentContext;
+import fr.nro.interview.mapper.QuestionMapper;
 import fr.nro.interview.repository.CategoryRepository;
 import fr.nro.interview.repository.SessionRepository;
 import fr.nro.interview.repository.StudentContextRepository;
@@ -57,9 +61,12 @@ public class SessionService {
 
   @Inject
   StudentContextRepository studentCtxRepository;
-  
+
   @Inject
   EntityManager em;
+
+  @Inject
+  QuestionMapper questionMapper;
 
   public SessionService() {
     super();
@@ -171,20 +178,61 @@ public class SessionService {
 
   public void answer(AnswerDTO answerDTO) {
     StudentContext stCtx = this.studentCtxRepository.findByUuid(answerDTO.getUuid());
+    if (stCtx == null) {
+      throw new NotFoundException("Context not found");
+    }
+
+    SessionCtxQuestion sessionCtxQ = stCtx.getSessionCtxQuestion()
+      .stream()
+      .filter(item -> Objects.equals(item.getSessionCtxAsso()
+        .getQuestionId(),
+          answerDTO.getQuestionId()
+            .getId()))
+      .findFirst()
+      .orElseGet(() -> {
+        SessionCtxQuestion newCtxQuestion = new SessionCtxQuestion();
+        newCtxQuestion.setQuestion(Question.findById(answerDTO.getQuestionId().getId()));
+        newCtxQuestion.setStudentContext(stCtx);
+        newCtxQuestion.setPosition(stCtx.getSessionCtxQuestion().size());
+        return newCtxQuestion;
+      });
+
+    // TODO Verify session expiration.
+    sessionCtxQ.setAnswer(answerDTO.getAnswer());
+    this.em.persist(sessionCtxQ);
+    
+    // verification si dernière question
+    Long count = this.em.createQuery("select count(scq) from SessionCtxQuestion scq "
+        + "where answer is not null and studentContext=:studentContext", 
+        Long.class).setParameter("studentContext", stCtx).getSingleResult();
+    
+    if(count == stCtx.getSession().getSurvey().getQuestions().size()) {
+      //derniere question
+      stCtx.setEndDate(Calendar.getInstance());
+      this.em.persist(stCtx);
+    }
+  }
+
+  public ExamDTO findExam(Long sessionId, String uuid) {
+    StudentContext stCtx = this.studentCtxRepository.findByUuid(uuid);
     if(stCtx == null) {
       throw new NotFoundException("Context not found");
     }
     
-    SessionCtxQuestion sessionCtxQ = stCtx.getSessionCtxQuestion()
-      .stream()
-      .filter(item -> Objects.equals(item.getSessionCtxAsso().getQuestionId(),answerDTO.getQuestionId().getId()))
-      .findFirst().orElseThrow(() -> new NotFoundException("Question not found for context"));
+    ExamDTO examDTO = new ExamDTO();
+    if(stCtx.getEndDate() != null) {
+      examDTO.setStatus(Status.END);
+    }else {
+      examDTO.setStatus(Status.PENDING);
+      examDTO.setQuestions(stCtx.getSession()
+          .getSurvey()
+          .getQuestions()
+          .stream().map(questionMapper).collect(toList()));
+    }
     
-    //TODO Verify session expiration.
-    
-    sessionCtxQ.setAnswer(answerDTO.getAnswer());
-    
-    this.em.persist(sessionCtxQ);
+  
+    return examDTO;
     
   }
+
 }

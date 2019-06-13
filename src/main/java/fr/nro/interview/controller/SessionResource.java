@@ -2,7 +2,10 @@ package fr.nro.interview.controller;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -56,18 +59,28 @@ public class SessionResource {
    * @return
    */
   @POST
-  @Path("/{id}/category/{categoryId}")
+  @Path("/{sessionId}/category/{categoryId}")
   @Consumes(MediaType.APPLICATION_JSON)
-  public void addGrade(@PathParam("id") Long sessionId, @PathParam("categoryId") Long categoryId) {
+  public void addGrade(@PathParam("sessionId") Long sessionId, @PathParam("categoryId") Long categoryId) {
     this.sessionService.addCategory(sessionId, categoryId);
   }
 
   @POST
-  @Path("/{id}/answer")
+  @Path("/{sessionId}/answer")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response postAnswer(@PathParam("sessionId") Long sessionId, AnswerDTO answer) {
     this.sessionService.answer(answer);
-    return Response.ok().build();
+    return Response.ok()
+      .build();
+  }
+
+  @GET
+  @Path("/{sessionId}/uuid/{uuid}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response getSession(@NotNull @PathParam("sessionId") Long sessionId, 
+      @NotBlank @PathParam("uuid") String uuid) {
+    return Response.ok(this.sessionService.findExam(sessionId, uuid))
+      .build();
   }
 
 }

@@ -27,10 +27,11 @@ public class Item extends PanacheEntity{
     super();
   }
 
-  public Item(Integer order, String label, Question question) {
+  public Item(Integer order, String label, String functionalReference,  Question question) {
     super();
     this.order = order;
     this.label = label;
+    this.functionalReference = functionalReference;
     this.question = question;
   }
 

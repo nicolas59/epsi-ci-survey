@@ -1,6 +1,9 @@
 package fr.nro.interview.service;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,6 +18,7 @@ import fr.nro.interview.entity.interview.Question;
 import fr.nro.interview.entity.interview.Survey;
 import fr.nro.interview.mapper.QuestionDTOMapper;
 import fr.nro.interview.mapper.SurveyDTOMapper;
+import fr.nro.interview.mapper.SurveyMapper;
 import fr.nro.interview.repository.QuestionRepository;
 import fr.nro.interview.repository.SurveyRepository;
 
@@ -29,6 +33,9 @@ public class SurveyService {
 
   @Inject
   SurveyDTOMapper mapper;
+
+  @Inject
+  SurveyMapper mapperDTO;
 
   @Inject
   QuestionDTOMapper questionMapper;
@@ -52,6 +59,18 @@ public class SurveyService {
     surveyRepository.persist(interview);
 
     interviewDTO.setId(interview.id);
+  }
+
+  public List<SurveyDTO> findAll() {
+    return this.surveyRepository.findAll()
+      .stream()
+      .map(mapperDTO)
+      .collect(toList());
+  }
+
+  public SurveyDTO findById(Long id) {
+    Survey survey = this.surveyRepository.findById(id);
+    return survey != null ? this.mapperDTO.apply(survey) : null;
   }
 
   public void addQuestion(Long interviewId, @Valid QuestionDTO questionDTO) throws ConstraintViolationException {
