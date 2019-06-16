@@ -36,6 +36,7 @@ import fr.nro.interview.entity.session.Session;
 import fr.nro.interview.entity.session.SessionCtxQuestion;
 import fr.nro.interview.entity.session.StudentContext;
 import fr.nro.interview.mapper.QuestionMapper;
+import fr.nro.interview.mapper.SessionMapper;
 import fr.nro.interview.repository.CategoryRepository;
 import fr.nro.interview.repository.SessionRepository;
 import fr.nro.interview.repository.StudentContextRepository;
@@ -67,6 +68,9 @@ public class SessionService {
 
   @Inject
   QuestionMapper questionMapper;
+
+  @Inject
+  SessionMapper sessionMapper;
 
   public SessionService() {
     super();
@@ -191,23 +195,28 @@ public class SessionService {
       .findFirst()
       .orElseGet(() -> {
         SessionCtxQuestion newCtxQuestion = new SessionCtxQuestion();
-        newCtxQuestion.setQuestion(Question.findById(answerDTO.getQuestionId().getId()));
+        newCtxQuestion.setQuestion(Question.findById(answerDTO.getQuestionId()
+          .getId()));
         newCtxQuestion.setStudentContext(stCtx);
-        newCtxQuestion.setPosition(stCtx.getSessionCtxQuestion().size());
+        newCtxQuestion.setPosition(stCtx.getSessionCtxQuestion()
+          .size());
         return newCtxQuestion;
       });
 
     // TODO Verify session expiration.
     sessionCtxQ.setAnswer(answerDTO.getAnswer());
     this.em.persist(sessionCtxQ);
-    
+
     // verification si dernière question
-    Long count = this.em.createQuery("select count(scq) from SessionCtxQuestion scq "
-        + "where answer is not null and studentContext=:studentContext", 
-        Long.class).setParameter("studentContext", stCtx).getSingleResult();
-    
-    if(count == stCtx.getSession().getSurvey().getQuestions().size()) {
-      //derniere question
+    Long count = this.em.createQuery("select count(scq) from SessionCtxQuestion scq " + "where answer is not null and studentContext=:studentContext", Long.class)
+      .setParameter("studentContext", stCtx)
+      .getSingleResult();
+
+    if (count == stCtx.getSession()
+      .getSurvey()
+      .getQuestions()
+      .size()) {
+      // derniere question
       stCtx.setEndDate(Calendar.getInstance());
       this.em.persist(stCtx);
     }
@@ -215,24 +224,35 @@ public class SessionService {
 
   public ExamDTO findExam(Long sessionId, String uuid) {
     StudentContext stCtx = this.studentCtxRepository.findByUuid(uuid);
-    if(stCtx == null) {
+    if (stCtx == null) {
       throw new NotFoundException("Context not found");
     }
-    
+
     ExamDTO examDTO = new ExamDTO();
-    if(stCtx.getEndDate() != null) {
+    if (stCtx.getEndDate() != null) {
       examDTO.setStatus(Status.END);
-    }else {
+    } else {
       examDTO.setStatus(Status.PENDING);
       examDTO.setQuestions(stCtx.getSession()
-          .getSurvey()
-          .getQuestions()
-          .stream().map(questionMapper).collect(toList()));
+        .getSurvey()
+        .getQuestions()
+        .stream()
+        .map(questionMapper)
+        .collect(toList()));
     }
-    
-  
+
     return examDTO;
-    
+  }
+
+  public List<SessionDTO> findAll() {
+    return this.sessionRepository.findAll()
+      .stream()
+      .map(this.sessionMapper)
+      .collect(toList());
+  }
+  
+  public SessionDTO findById(Long sessionId) {
+    return this.sessionMapper.apply(this.sessionRepository.findById(sessionId));
   }
 
 }

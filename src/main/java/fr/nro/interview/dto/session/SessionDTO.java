@@ -1,5 +1,6 @@
 package fr.nro.interview.dto.session;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -19,6 +20,16 @@ public class SessionDTO extends Identifier<Long> {
   private List<Identifier<Long>> studentIds;
   
   private Integer duration;
+  
+  private LocalDate startDate;
+
+  public LocalDate getStartDate() {
+    return startDate;
+  }
+
+  public void setStartDate(LocalDate startDate) {
+    this.startDate = startDate;
+  }
 
   public Integer getDuration() {
     return duration;

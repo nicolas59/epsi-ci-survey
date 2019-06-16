@@ -17,6 +17,7 @@ import fr.nro.interview.dto.interview.SurveyDTO;
 import fr.nro.interview.entity.interview.Question;
 import fr.nro.interview.entity.interview.Survey;
 import fr.nro.interview.mapper.QuestionDTOMapper;
+import fr.nro.interview.mapper.QuestionMapper;
 import fr.nro.interview.mapper.SurveyDTOMapper;
 import fr.nro.interview.mapper.SurveyMapper;
 import fr.nro.interview.repository.QuestionRepository;
@@ -39,6 +40,9 @@ public class SurveyService {
 
   @Inject
   QuestionDTOMapper questionMapper;
+
+  @Inject
+  QuestionMapper questionMapperDto;
 
   public SurveyService() {
     super();
@@ -88,6 +92,10 @@ public class SurveyService {
     this.questionRepository.persist(question);
 
     questionDTO.setId(question.id);
+  }
+
+  public QuestionDTO getQuestion(Long interviewId, Long questionId) {
+    return this.questionMapperDto.apply(this.questionRepository.findById(questionId));
   }
 
 }

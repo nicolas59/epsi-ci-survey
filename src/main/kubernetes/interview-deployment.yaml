@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name:  interview
+  labels:
+    name:  interview
+    app: interview
+    version: v1
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name:  interview
+    spec:
+      containers:
+      - image:  interview:1.0.0
+        name:  interview
+        env:
+        - name:  ENVVARNAME
+          value:  ENVVARVALUE       
+        ports:
+        - containerPort:  8080
+          name:  http-port
+      restartPolicy: Always

@@ -82,5 +82,18 @@ public class SessionResource {
     return Response.ok(this.sessionService.findExam(sessionId, uuid))
       .build();
   }
+  
+  @GET
+  public Response findAll() {
+    return Response.ok(this.sessionService.findAll())
+      .build();
+  }
+  
+  @GET
+  @Path("/{sessionId}")
+  public Response findById(@NotNull @PathParam("sessionId")Long sessionId) {
+    return Response.ok(this.sessionService.findById(sessionId))
+      .build();
+  }
 
 }

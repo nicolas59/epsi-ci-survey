@@ -34,13 +34,13 @@ public class SurveyResource {
     return Response.ok(this.interviewService.findAll())
       .build();
   }
-  
+
   @GET
   @Path("/{id}")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response findSurvey(@PathParam("id") @NotNull Long id) {
     SurveyDTO surveyDto = this.interviewService.findById(id);
-    if(surveyDto == null) {
+    if (surveyDto == null) {
       throw new NotFoundException();
     }
     return Response.ok(surveyDto)
@@ -76,6 +76,13 @@ public class SurveyResource {
         .entity(ErrorDTO.create(e.getConstraintViolations()))
         .build();
     }
+  }
+
+  @GET
+  @Path("{id}/question/{questionId}")
+  public Response getQuestion(@NotNull @PathParam("id") Long identifier, @NotNull @PathParam("questionId") Long questionId) {
+    return Response.ok(this.interviewService.getQuestion(identifier, questionId))
+      .build();
   }
 
 }
