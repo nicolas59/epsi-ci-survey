@@ -28,6 +28,8 @@ public class SessionMapper implements Function<Session, SessionDTO> {
         .map(Student::getId)
         .map(Identifier::new)
         .collect(toList()));
+    
+    
     return sessionDto;
   }
 

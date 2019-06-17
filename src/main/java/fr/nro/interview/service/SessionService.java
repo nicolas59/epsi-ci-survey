@@ -2,6 +2,10 @@ package fr.nro.interview.service;
 
 import static java.util.stream.Collectors.toList;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -11,7 +15,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -20,11 +26,13 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.nro.interview.dto.Identifier;
 import fr.nro.interview.dto.session.AnswerDTO;
+import fr.nro.interview.dto.session.ContextDTO;
 import fr.nro.interview.dto.session.ExamDTO;
 import fr.nro.interview.dto.session.ExamDTO.Status;
 import fr.nro.interview.dto.session.SessionDTO;
@@ -37,11 +45,14 @@ import fr.nro.interview.entity.session.SessionCtxQuestion;
 import fr.nro.interview.entity.session.StudentContext;
 import fr.nro.interview.mapper.QuestionMapper;
 import fr.nro.interview.mapper.SessionMapper;
+import fr.nro.interview.mapper.StudentMapper;
 import fr.nro.interview.repository.CategoryRepository;
 import fr.nro.interview.repository.SessionRepository;
 import fr.nro.interview.repository.StudentContextRepository;
 import fr.nro.interview.repository.StudentRepository;
 import fr.nro.interview.repository.SurveyRepository;
+import io.quarkus.mailer.Mail;
+import io.quarkus.mailer.Mailer;
 
 @ApplicationScoped
 public class SessionService {
@@ -72,6 +83,17 @@ public class SessionService {
   @Inject
   SessionMapper sessionMapper;
 
+  @Inject
+  StudentMapper studentMapper;
+
+  @Inject
+  Mailer mailer;
+
+  String emailBody;
+
+  @ConfigProperty(name = "interview.url")
+  String url;
+
   public SessionService() {
     super();
   }
@@ -82,6 +104,14 @@ public class SessionService {
     this.studentRepository = studentRepository;
     this.sessionRepository = sessionRepository;
     this.categoryRepository = categoryRepository;
+  }
+
+  @PostConstruct
+  public void init() throws IOException, URISyntaxException {
+    this.emailBody = Files.readAllLines(Paths.get(SessionService.class.getResource("/epreuve.html")
+      .toURI()))
+      .stream()
+      .collect(Collectors.joining("\n"));
   }
 
   public void createSession(@Valid SessionDTO sessionDto) {
@@ -250,9 +280,52 @@ public class SessionService {
       .map(this.sessionMapper)
       .collect(toList());
   }
-  
+
   public SessionDTO findById(Long sessionId) {
     return this.sessionMapper.apply(this.sessionRepository.findById(sessionId));
+  }
+
+  public ContextDTO findContext(Long sessionId, Long studentId) {
+
+    StudentContext ctx = this.studentCtxRepository.findBySessionAndStudent(sessionId, studentId);
+    if (ctx == null) {
+      throw new NotFoundException("Contexte inexitant");
+    }
+
+    final ContextDTO context = new ContextDTO();
+    context.setUuid(ctx.getUuid());
+    context.setStudent(this.studentMapper.apply(ctx.getStudent()));
+
+    return context;
+  }
+
+  public void sendEmail(Long sessionId) {
+    Session session = this.sessionRepository.findById(sessionId);
+    if (session == null) {
+      throw new NotFoundException("Session inexitant");
+    }
+    List<Mail> emails = session.getStudentContexts()
+      .stream()
+      .map(this::generateEmail)
+      .collect(toList());
+    this.mailer.send(emails.toArray(new Mail[0]));
+  }
+
+  public void sendEmail(Long sessionId, Long studentId) {
+    StudentContext ctx = this.studentCtxRepository.findBySessionAndStudent(sessionId, studentId);
+    if (ctx == null) {
+      throw new NotFoundException("Contexte inexitant");
+    }
+    LOGGER.debug("Send email to {}", ctx.getStudent()
+      .getEmail());
+    mailer.send(generateEmail(ctx));
+  }
+
+  private Mail generateEmail(StudentContext ctx) {
+    String html = this.emailBody.replaceAll("%url%", this.url.replaceAll("@sessionId@", String.valueOf(ctx.getSession().id))
+      .replaceAll("@uuid@", String.valueOf(ctx.getUuid())));
+    return Mail.withHtml(ctx.getStudent()
+      .getEmail(), "Acces au QCM", html);
   }
 
 }

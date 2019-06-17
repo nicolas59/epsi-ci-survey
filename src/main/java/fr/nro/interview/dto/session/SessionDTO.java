@@ -19,6 +19,8 @@ public class SessionDTO extends Identifier<Long> {
   
   private List<Identifier<Long>> studentIds;
   
+  private List<Identifier<Long>> contextsId;
+  
   private Integer duration;
   
   private LocalDate startDate;
@@ -55,4 +57,12 @@ public class SessionDTO extends Identifier<Long> {
     this.studentIds = studentIds;
   }
 
+  public List<Identifier<Long>> getContextsId() {
+    return contextsId;
+  }
+
+  public void setContextsId(List<Identifier<Long>> contextsId) {
+    this.contextsId = contextsId;
+  }
+  
 }

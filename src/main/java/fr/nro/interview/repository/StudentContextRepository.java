@@ -18,5 +18,13 @@ public class StudentContextRepository implements PanacheRepository<StudentContex
       .setParameter("uuid", uuid)
       .getSingleResult();
   }
+  
+  
+  public StudentContext findBySessionAndStudent(Long sessionId, Long studentId) {
+    return (StudentContext) em.createQuery("from StudentContext sc where sc.session.id=:sessionId and sc.student.id=:studentId")
+      .setParameter("sessionId", sessionId)
+      .setParameter("studentId", studentId)
+      .getSingleResult();
+  }
 
 }
