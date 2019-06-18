@@ -1,5 +1,6 @@
 package fr.nro.interview.controller;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotBlank;
@@ -23,6 +24,7 @@ import fr.nro.interview.service.SessionService;
 @Path("/session")
 @Produces(MediaType.APPLICATION_JSON)
 @Transactional
+@RolesAllowed("admin")
 public class SessionResource {
 
   SessionService sessionService;

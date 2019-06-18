@@ -1,0 +1,17 @@
+{
+	"iss": "https://quarkus.io/using-jwt-rbac",
+	"jti": "a-123",
+	"sub": "nrousseau-using-jwt-rbac",
+	"upn": "nicolas.rousseau1@gmail.com",
+	"preferred_username": "Nicolas",
+	"aud": "using-jwt-rbac",
+	"birthdate": "1981-02-11",
+	"roleMappings": {
+		"group1": "Group1MappedRole",
+		"group2": "Group2MappedRole"
+	},
+	"groups": [
+		"admin",
+		"group2"
+	]
+}
