@@ -2,6 +2,7 @@ package fr.nro.interview.controller;
 
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolationException;
@@ -24,6 +25,7 @@ import fr.nro.interview.service.StudentService;
 @Path("/student")
 @Produces(MediaType.APPLICATION_JSON)
 @Transactional
+@RolesAllowed("admin")
 public class StudentResource {
 
   @Inject

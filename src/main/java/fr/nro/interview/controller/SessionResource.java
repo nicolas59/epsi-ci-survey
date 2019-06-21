@@ -1,5 +1,6 @@
 package fr.nro.interview.controller;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -71,6 +72,7 @@ public class SessionResource {
 
   @POST
   @Path("/{sessionId}/answer")
+  @PermitAll
   @Consumes(MediaType.APPLICATION_JSON)
   public Response postAnswer(@PathParam("sessionId") Long sessionId, AnswerDTO answer) {
     this.sessionService.answer(answer);
@@ -81,6 +83,7 @@ public class SessionResource {
   @GET
   @Path("/{sessionId}/uuid/{uuid}")
   @Consumes(MediaType.APPLICATION_JSON)
+  @PermitAll
   public Response getSession(@NotNull @PathParam("sessionId") Long sessionId, @NotBlank @PathParam("uuid") String uuid) {
     return Response.ok(this.sessionService.findExam(sessionId, uuid))
       .build();

@@ -1,5 +1,6 @@
 package fr.nro.interview.controller;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolationException;
@@ -23,6 +24,7 @@ import fr.nro.interview.service.SurveyService;
 @Transactional
 @Path("/survey")
 @Produces(MediaType.APPLICATION_JSON)
+@RolesAllowed("admin")
 public class SurveyResource {
 
   @Inject
