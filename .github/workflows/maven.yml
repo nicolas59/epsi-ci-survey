@@ -33,14 +33,14 @@ jobs:
       run: mvn -B package --file pom.xml
     
     - name: upload image to ECR
-      uses: appleboy/docker-ecr-action@master
+      uses: kciter/aws-ecr-action@v1
       with:
-        access_key: ${{ secrets.aws_access_key_id }}
-        secret_key: ${{ secrets.aws_secret_access_key }}
-        registry: ${{ secrets.registry }}
+        access_key_id: ${{ secrets.aws_access_key_id }}
+        secret_access_key: ${{ secrets.aws_secret_access_key }}
+        account_id: ${{ secrets.account_id }}
         repo: nro/interview-api
         region: eu-west-3
-        daemon_off: false
         dockerfile: ./src/main/docker/Dockerfile.jvm
-        context: .
+        path: .
+        
       
