@@ -16,6 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: marocchino/setup-ecs-cli@v1
+      with:
+        version: "v1.18.0"
+    
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
@@ -43,4 +47,7 @@ jobs:
         dockerfile: ./src/main/docker/Dockerfile.jvm
         path: .
         
-      
+    - name: Deploy ecs
+      run: bash -c "ecs-cli compose --file ./src/main/docker/docker-compose.jvm --project-name interview-ui --cluster-config my-project-prism-api"
+        
+    
