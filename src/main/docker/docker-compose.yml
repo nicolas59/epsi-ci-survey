@@ -1,4 +1,4 @@
-version: "3.0"
+version: "3"
 services:    
     web:
         image: "918261458107.dkr.ecr.eu-west-3.amazonaws.com/nro/interview-api:latest"
