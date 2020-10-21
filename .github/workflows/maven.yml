@@ -48,6 +48,6 @@ jobs:
         path: .
         
     - name: Deploy ecs
-      run: ecs-cli compose create --debug --f ./src/main/docker/docker-compose.yml --project-name interview-ui --cluster-config my-project-prism-api
+      run: ecs-cli compose create -f ./src/main/docker/docker-compose.yml --project-name interview-ui --cluster-config my-project-prism-api
         
     
