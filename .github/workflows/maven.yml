@@ -16,9 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: marocchino/setup-ecs-cli@v1
-      with:
-        version: "v1.20.0"
+  
+    - run: sudo curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
+    - run: sudo chmod +x "/usr/local/bin/ecs-cli"
+    - run: echo "::add-path::/usr/local/bin/ecs-cli"
     
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
@@ -46,8 +47,23 @@ jobs:
         region: eu-west-3
         dockerfile: ./src/main/docker/Dockerfile.jvm
         path: .
-        
+  
+    - run: ecs-cli configure profile --profile-name interview-api --access-key ${{ secrets.aws_access_key_id }} --secret-key ${{ secrets.aws_secret_access_key }} 
+  
+    - uses: bluwy/substitute-string-action@v1
+      id: sub
+      with:
+        _input-file: './src/main/docker/docker-compose.yml'
+        _format-key: '%%key%%'
+        _output-file: './src/main/docker/docker-compose-gen.yml'
+        ds_url: ${{ secrets.DS_URL }}
+        ds_username: ${{ secrets.DS_USERNAME }}
+        ds_password: ${{ secrets.DS_PASSWORD }}
+        log_level: ${{ secrets.LOG_LEVEL }}
+        log_console_evel: ${{ secrets.LOG_CONSOLE_LEVEL }}
+        db_name: ${{ secrets.DB_NAME }}
+
     - name: Deploy ecs
-      run: ecs-cli compose create -f ./src/main/docker/docker-compose.yml --project-name interview-ui --cluster-config my-project-prism-api
+      run: sudo ecs-cli compose --region eu-west-3 --ecs-profile interview-api --project-name interview-ui --cluster my-project-prism-api -f ./src/main/docker/docker-compose-gen.yml up
         
     
