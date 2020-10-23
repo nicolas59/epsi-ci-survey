@@ -1,0 +1,28 @@
+version: "3"
+services:    
+    web:
+        image: "918261458107.dkr.ecr.eu-west-3.amazonaws.com/nro/interview-api:latest"
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 512M
+                reservations:
+                    cpus: '0.25'
+                    memory: 250M
+        ports:
+            - "8090:8080"
+        environment:
+            "interview.template": "file:///configuration/epreuve.html"
+            "INTERVIEW.TEMPLATE": "file:///configuration/epreuve.html"
+            "interview.url": "https://qcm.cloud-gfi-nord.fr/exam/@sessionId@/uuid/@uuid@"
+            "MP_JWT_VERIFY_PUBLICKEY_LOCATION": "file:///configuration/public-key.pem"
+            "QUARKUS_DATASOURCE_PASSWORD": "%%ds_password%%"
+            "QUARKUS_DATASOURCE_URL": "%%ds_url%%"
+            "QUARKUS_DATASOURCE_USERNAME": "%%ds_username%%"
+            "QUARKUS_LOG_CONSOLE_LEVEL": "%%log_console_evel%%"
+            "QUARKUS_LOG_LEVEL": "%%log_level%%"
+            "QUARKUS_MAILER_PASSWORD": "password"
+            "QUARKUS_MAILER_USERNAME": "epsi.qcmonline"
+            "DB_NAME": "%%db_name%%"
+
