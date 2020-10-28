@@ -19,9 +19,7 @@ services:
             - "8090:8080"
         environment:
             "interview.template": "file:///configuration/epreuve.html"
-            "INTERVIEW.TEMPLATE": "file:///configuration/epreuve.html"
             "interview.url": "https://qcm.cloud-gfi-nord.fr/exam/@sessionId@/uuid/@uuid@"
-            "MP_JWT_VERIFY_PUBLICKEY_LOCATION": "file:///configuration/public-key.pem"
             "QUARKUS_DATASOURCE_PASSWORD": "%%ds_password%%"
             "QUARKUS_DATASOURCE_URL": "%%ds_url%%"
             "QUARKUS_DATASOURCE_USERNAME": "%%ds_username%%"
@@ -30,4 +28,9 @@ services:
             "QUARKUS_MAILER_PASSWORD": "password"
             "QUARKUS_MAILER_USERNAME": "epsi.qcmonline"
             "DB_NAME": "%%db_name%%"
+            "QUARKUS_HTTP_CORS": "false"
+            "mp.jwt.verify.publickey.location": "file:///configuration/public-key.pem"
+            "mp.jwt.verify.issuer": "https://quarkus.io/using-jwt-rbac"
+            "quarkus.smallrye-jwt.auth-mechanism": "MP-JWT"
+            "quarkus.smallrye-jwt.enabled": "true"
 

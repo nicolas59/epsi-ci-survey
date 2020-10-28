@@ -36,7 +36,10 @@ jobs:
           
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    
+
+    - name: Test
+      run: ls src/main/resources
+
     - name: upload image to ECR
       uses: kciter/aws-ecr-action@v1
       with:
