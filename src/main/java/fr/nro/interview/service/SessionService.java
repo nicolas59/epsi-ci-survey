@@ -3,11 +3,16 @@ package fr.nro.interview.service;
 import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,6 +26,8 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.NotFoundException;
@@ -55,6 +62,7 @@ import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 
 @ApplicationScoped
+@Transactional
 public class SessionService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
@@ -91,8 +99,11 @@ public class SessionService {
 
   String emailBody;
 
-  @ConfigProperty(name = "interview.url")
+  @ConfigProperty(name = "interview.url", defaultValue = "http://localhost:4200/exam/@sessionId@/uuid/@uuid@")
   String url;
+
+  @ConfigProperty(name = "interview.template", defaultValue = "file:///configuration/epreuve.html")
+  String templateEmail;
 
   public SessionService() {
     super();
@@ -108,8 +119,15 @@ public class SessionService {
 
   @PostConstruct
   public void init() throws IOException, URISyntaxException {
-    this.emailBody = Files.readAllLines(Paths.get(SessionService.class.getResource("/epreuve.html")
-      .toURI()))
+    URI url = null;
+    if (templateEmail.startsWith("classpath:")) {
+      url = SessionService.class.getResource(templateEmail.substring("classpath:".length()))
+        .toURI();
+    } else {
+      url = URI.create(this.templateEmail);
+    }
+
+    this.emailBody = Files.readAllLines(Paths.get(url))
       .stream()
       .collect(Collectors.joining("\n"));
   }
@@ -119,6 +137,7 @@ public class SessionService {
     session.setCreatedDate(LocalDate.now());
     session.setDuration(sessionDto.getDuration());
     session.setStatus(Session.Status.CREATING);
+    session.setName(sessionDto.getName());
 
     final Survey survey = this.surveyRepository.findById(sessionDto.getSurveyId()
       .getId());
@@ -216,6 +235,9 @@ public class SessionService {
       throw new NotFoundException("Context not found");
     }
 
+    Question question = Question.findById(answerDTO.getQuestionId()
+      .getId());
+
     SessionCtxQuestion sessionCtxQ = stCtx.getSessionCtxQuestion()
       .stream()
       .filter(item -> Objects.equals(item.getSessionCtxAsso()
@@ -225,8 +247,7 @@ public class SessionService {
       .findFirst()
       .orElseGet(() -> {
         SessionCtxQuestion newCtxQuestion = new SessionCtxQuestion();
-        newCtxQuestion.setQuestion(Question.findById(answerDTO.getQuestionId()
-          .getId()));
+        newCtxQuestion.setQuestion(question);
         newCtxQuestion.setStudentContext(stCtx);
         newCtxQuestion.setPosition(stCtx.getSessionCtxQuestion()
           .size());
@@ -234,8 +255,15 @@ public class SessionService {
       });
 
     // TODO Verify session expiration.
-    sessionCtxQ.setAnswer(answerDTO.getAnswer());
+
+    if (sessionCtxQ.getAnswer() == null) {
+      sessionCtxQ.setAnswer(answerDTO.getAnswer());
+    } else {
+      throw new ConstraintViolationException("Answer already presents.", null);
+    }
     this.em.persist(sessionCtxQ);
+
+    stCtx.setLastQuestionAnswered(question);
 
     // verification si dernière question
     Long count = this.em.createQuery("select count(scq) from SessionCtxQuestion scq " + "where answer is not null and studentContext=:studentContext", Long.class)
@@ -262,13 +290,42 @@ public class SessionService {
     if (stCtx.getEndDate() != null) {
       examDTO.setStatus(Status.END);
     } else {
-      examDTO.setStatus(Status.PENDING);
-      examDTO.setQuestions(stCtx.getSession()
-        .getSurvey()
-        .getQuestions()
-        .stream()
-        .map(questionMapper)
-        .collect(toList()));
+      if (stCtx.getStartedDate() == null) {
+        stCtx.setStartedDate(Calendar.getInstance());
+        if (stCtx.getSession()
+          .getDuration() != null) {
+          Calendar now = Calendar.getInstance();
+          now.add(Calendar.MINUTE, stCtx.getSession()
+            .getDuration() + 1);
+          stCtx.setDeathLine(now);
+        }
+        this.studentCtxRepository.persist(stCtx);
+      }
+
+      long remain = ChronoUnit.MINUTES.between(LocalDateTime.now()
+        .atZone(ZoneId.systemDefault()),
+          stCtx.getDeathLine()
+            .toInstant()
+            .atZone(ZoneId.systemDefault()));
+
+      if (remain <= 0) {
+        examDTO.setStatus(Status.EXPIRED);
+      } else {
+        examDTO.setRemainingTimeInMinutes(remain > 0 ? remain : 0);
+        examDTO.setStatus(Status.PENDING);
+        examDTO.setQuestions(stCtx.getSession()
+          .getSurvey()
+          .getQuestions()
+          .stream()
+          .map(questionMapper)
+          .collect(toList()));
+
+        // find last question
+        if (stCtx.getLastQuestionAnswered() != null) {
+          examDTO.setLastQuestionAnswered(new Identifier<>(stCtx.getLastQuestionAnswered().id));
+        }
+      }
+
     }
 
     return examDTO;
@@ -285,6 +342,20 @@ public class SessionService {
     return this.sessionMapper.apply(this.sessionRepository.findById(sessionId));
   }
 
+  public boolean isEquals(String item1, String item2) {
+    if (item1 == null || item2 == null) {
+      return false;
+    }
+
+    String[] item1Split = (item1 == null?"":item1).split(",");
+    Arrays.sort(item1Split);
+
+    String[] item2Split = (item2 == null?"":item2).split(",");
+    Arrays.sort(item2Split);
+
+    return Arrays.equals(item1Split, item2Split);
+  }
+
   public ContextDTO findContext(Long sessionId, Long studentId) {
 
     StudentContext ctx = this.studentCtxRepository.findBySessionAndStudent(sessionId, studentId);
@@ -295,6 +366,35 @@ public class SessionService {
     final ContextDTO context = new ContextDTO();
     context.setUuid(ctx.getUuid());
     context.setStudent(this.studentMapper.apply(ctx.getStudent()));
+    if(ctx.getStartedDate() != null) {
+    //  context.setStartedDate(LocalDateTime.ofInstant(ctx.getStartedDate().toInstant(), ZoneId.systemDefault()));
+    }
+    
+    if(ctx.getStartedDate() != null) {
+      context.setStartedDate(ctx.getStartedDate().getTime());
+    }
+    
+    if(ctx.getEndDate() != null) {
+      context.setEndDate(LocalDateTime.ofInstant(ctx.getEndDate().toInstant(), ZoneId.systemDefault()));
+    }
+    
+    if(ctx.getDeathLine() != null) {
+      context.setDeathLine(LocalDateTime.ofInstant(ctx.getDeathLine().toInstant(), ZoneId.systemDefault()));
+    }
+    
+    
+
+    if (ctx.getSessionCtxQuestion() != null) {
+      context.setScore(ctx.getSessionCtxQuestion()
+        .stream()
+        .filter(item -> this.isEquals(item.getQuestion()
+          .getResponse(), item.getAnswer()))
+        .map(item -> 1)
+        .reduce(Integer::sum)
+        .orElse(0));
+    } else {
+      context.setScore(0);
+    }
 
     return context;
   }

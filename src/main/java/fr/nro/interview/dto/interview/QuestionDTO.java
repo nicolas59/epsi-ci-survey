@@ -27,6 +27,8 @@ public class QuestionDTO extends Identifier<Long>{
   
   @NotBlank
   private String response;
+  
+  private Boolean multiple;
 
   public Integer getScore() {
     return score;
@@ -66,5 +68,16 @@ public class QuestionDTO extends Identifier<Long>{
   public void setItems(ArrayList<ItemDTO> items) {
     this.items = items;
   }
+
+
+  public Boolean getMultiple() {
+    return multiple;
+  }
+
+
+  public void setMultiple(Boolean multiple) {
+    this.multiple = multiple;
+  }
+  
 
 }

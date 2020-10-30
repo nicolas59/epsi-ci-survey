@@ -20,6 +20,7 @@ public class QuestionDTOMapper implements Function<QuestionDTO, Question> {
     question.setLabel(t.getLabel());
     question.setScore(t.getScore());
     question.setResponse(t.getResponse());
+    question.setMultiple(t.getMultiple());
     if (t.getItems() != null) {
       question.setItems(t.getItems()
         .stream()

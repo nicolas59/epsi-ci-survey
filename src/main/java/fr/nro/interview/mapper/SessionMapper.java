@@ -19,6 +19,7 @@ public class SessionMapper implements Function<Session, SessionDTO> {
   public SessionDTO apply(Session t) {
     SessionDTO sessionDto = new SessionDTO();
     sessionDto.setId(t.id);
+    sessionDto.setName(t.getName());
     sessionDto.setSurveyId(new Identifier<>(t.getSurvey().id));
     sessionDto.setDuration(t.getDuration());
     sessionDto.setStartDate(t.getStartDate());

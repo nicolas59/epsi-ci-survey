@@ -18,7 +18,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 public class Question extends PanacheEntity{
 
   @NotNull
-  @Size(max=250)
+  @Size(max=500)
   private String label;
   
   @OneToMany(mappedBy="question", cascade= CascadeType.ALL)
@@ -35,6 +35,9 @@ public class Question extends PanacheEntity{
   
   @Column
   private String response;
+  
+  @Column
+  private Boolean multiple;
 
   public Integer getScore() {
     return score;
@@ -74,5 +77,13 @@ public class Question extends PanacheEntity{
 
   public void setSurvey(Survey survey) {
     this.survey = survey;
+  }
+
+  public Boolean getMultiple() {
+    return Boolean.TRUE.equals(this.multiple);
+  }
+
+  public void setMultiple(Boolean multiple) {
+    this.multiple = multiple;
   }
 }

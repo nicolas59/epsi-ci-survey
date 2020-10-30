@@ -15,6 +15,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import fr.nro.interview.entity.Student;
+import fr.nro.interview.entity.interview.Question;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 @Entity
@@ -46,6 +47,10 @@ public class StudentContext extends PanacheEntity {
 
   @Column(unique = true)
   private String uuid;
+  
+  @ManyToOne(optional= true)
+  @JoinColumn(name = "last_question_answered_id")
+  private Question lastQuestionAnswered;
 
   public StudentContext() {
     super();
@@ -113,5 +118,15 @@ public class StudentContext extends PanacheEntity {
   public void setSessionCtxQuestion(Set<SessionCtxQuestion> sessionCtxQuestion) {
     this.sessionCtxQuestion = sessionCtxQuestion;
   }
+
+  public Question getLastQuestionAnswered() {
+    return lastQuestionAnswered;
+  }
+
+  public void setLastQuestionAnswered(Question lastQuestionAnswered) {
+    this.lastQuestionAnswered = lastQuestionAnswered;
+  }
+  
+  
 
 }

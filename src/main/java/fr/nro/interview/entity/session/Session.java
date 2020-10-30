@@ -23,6 +23,9 @@ public class Session extends PanacheEntity{
   }
 
   @Column
+  private String name;
+  
+  @Column
   private LocalDate createdDate;
   
   @Column
@@ -88,5 +91,13 @@ public class Session extends PanacheEntity{
 
   public void setStudentContexts(List<StudentContext> studentContexts) {
     this.studentContexts = studentContexts;
+  }
+  
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 }

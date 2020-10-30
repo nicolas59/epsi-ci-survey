@@ -30,6 +30,7 @@ public class QuestionMapper implements Function<Question, QuestionDTO>{
           itemDto.setReference(item.getFunctionalReference());
           return itemDto;
         }).collect(toList())));
+    questDto.setMultiple(question.getMultiple());
     return questDto;
   }
 

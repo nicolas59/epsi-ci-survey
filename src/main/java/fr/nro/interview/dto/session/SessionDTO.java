@@ -15,6 +15,9 @@ public class SessionDTO extends Identifier<Long> {
   private static final long serialVersionUID = -5618872777375434695L;
 
   @NotNull
+  private String name;
+  
+  @NotNull
   private Identifier<Long> surveyId;
   
   private List<Identifier<Long>> studentIds;
@@ -63,6 +66,14 @@ public class SessionDTO extends Identifier<Long> {
 
   public void setContextsId(List<Identifier<Long>> contextsId) {
     this.contextsId = contextsId;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
   
 }
