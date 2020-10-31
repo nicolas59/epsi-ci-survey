@@ -63,8 +63,9 @@ jobs:
         ds_username: ${{ secrets.DS_USERNAME }}
         ds_password: ${{ secrets.DS_PASSWORD }}
         log_level: ${{ secrets.LOG_LEVEL }}
-        log_console_evel: ${{ secrets.LOG_CONSOLE_LEVEL }}
+        log_console_level: ${{ secrets.LOG_CONSOLE_LEVEL }}
         db_name: ${{ secrets.DB_NAME }}
+        mail_password: ${{ secrets.MAIL_PASSWORD}}
 
     - name: Deploy ecs
       run: sudo ecs-cli compose --region eu-west-3 --ecs-profile interview-api --project-name interview-ui --cluster my-project-prism-api -f ./src/main/docker/docker-compose-gen.yml up
