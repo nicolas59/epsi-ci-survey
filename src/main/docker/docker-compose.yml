@@ -2,11 +2,6 @@ version: "3"
 services:    
     web:
         image: "918261458107.dkr.ecr.eu-west-3.amazonaws.com/nro/interview-api:latest"
-        logging:
-            driver: awslogs
-            options:
-              awslogs-region: eu-west-3
-              awslogs-group: /interview/app-logs
         deploy:
             resources:
                 limits:
@@ -18,19 +13,23 @@ services:
         ports:
             - "8090:8080"
         environment:
-            "interview.template": "file:///configuration/epreuve.html"
-            "interview.url": "https://qcm.cloud-gfi-nord.fr/exam/@sessionId@/uuid/@uuid@"
+            "INTERVIEW_TEMPLATE": "file:///configuration/epreuve.html"
+            "INTERVIEW_URL": "https://qcm.cloud-gfi-nord.fr/exam/@sessionId@/uuid/@uuid@"
             "QUARKUS_DATASOURCE_PASSWORD": "%%ds_password%%"
-            "QUARKUS_DATASOURCE_URL": "%%ds_url%%"
+            "QUARKUS_DATASOURCE_JDBC_URL": "%%ds_url%%"
             "QUARKUS_DATASOURCE_USERNAME": "%%ds_username%%"
-            "QUARKUS_LOG_CONSOLE_LEVEL": "%%log_console_evel%%"
-            "QUARKUS_LOG_LEVEL": "%%log_level%%"
-            "QUARKUS_MAILER_PASSWORD": "password"
+            "QUARKUS_MAIL_PASSWORD": "%%mail_password%%"
             "QUARKUS_MAILER_USERNAME": "epsi.qcmonline"
             "DB_NAME": "%%db_name%%"
             "QUARKUS_HTTP_CORS": "false"
-            "mp.jwt.verify.publickey.location": "file:///configuration/public-key.pem"
-            "mp.jwt.verify.issuer": "https://quarkus.io/using-jwt-rbac"
-            "quarkus.smallrye-jwt.auth-mechanism": "MP-JWT"
-            "quarkus.smallrye-jwt.enabled": "true"
-
+            "QUARKUS_HTTP_CORS_ORIGINS": "*"
+            "QUARKUS_HTTP_CORS_METHODS": "GET,PUT,POST, DELETE"
+            "QUARKUS_HTTP_CORS_HEADERS": "*"
+            "QUARKUS_HTTP_CORS_EXPOSED-HEADERS": "*"
+            "QUARKUS_HTTP_CORS_ACCESS-CONTROL-MAX-AGE": "24H"
+            "QUARKUS_HTTP_CORS_ACCESS-CONTROL-ALLOW-CREDENTIALS" : "false"
+            "MP_JWT_VERIFY_PUBLICKEY_LOCATION": "classpath:/META-INF/public-key.pem"
+            "MP_JWT_VERIFY_ISSUER": "https://QUARKUS_io/using-jwt-rbac"
+            "QUARKUS_DATASOURCE_DB-KIND": "mariadb"
+            "QUARKUS_DATASOURCE_JDBC_DRIVER": "org.mariadb.jdbc.Driver"
+            "QUARKUS_HIBERNATE-ORM_DIALECT": "org.hibernate.dialect.MySQL57Dialect"

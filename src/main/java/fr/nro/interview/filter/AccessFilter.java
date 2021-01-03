@@ -1,6 +1,7 @@
 package fr.nro.interview.filter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -17,7 +18,14 @@ public class AccessFilter implements ContainerRequestFilter {
   
   @Override
   public void filter(ContainerRequestContext requestContext) throws IOException {
-    LOGGER.info("Acces à l'uri :  {}", requestContext.getUriInfo().getPath());
+    LOGGER.info(">> Acces à l'uri :  {}", requestContext.getUriInfo().getPath());
+
+    if(requestContext.getHeaders()!=null){
+     requestContext.getHeaders().forEach((name, values) -> {
+       LOGGER.info(name);
+       values.stream().forEach(LOGGER::info);
+     });
+    }
   }
 
 }

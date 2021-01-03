@@ -133,6 +133,7 @@ public class SessionService {
   }
 
   public void createSession(@Valid SessionDTO sessionDto) {
+    LOGGER.info("Create new session with survey {}", sessionDto.getSurveyId());
     final Session session = new Session();
     session.setCreatedDate(LocalDate.now());
     session.setDuration(sessionDto.getDuration());
@@ -173,7 +174,7 @@ public class SessionService {
    * 
    * 
    * @param sessionId
-   * @param gradeId
+   * @param categoryId
    */
   public void addCategory(@NotNull Long sessionId, @NotNull Long categoryId) {
     Session session = this.sessionRepository.findById(sessionId);
