@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
   
-    - run: sudo curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
+    - run: sudo curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-f73f9e3
     - run: sudo chmod +x "/usr/local/bin/ecs-cli"
     - run: echo "/usr/local/bin/ecs-cli >> $GITHUB_PATH"
     
