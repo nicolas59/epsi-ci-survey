@@ -68,6 +68,6 @@ jobs:
         mail_password: ${{ secrets.MAIL_PASSWORD}}
 
     - name: Deploy ecs
-      run: sudo ecs-cli compose --region eu-west-3 --ecs-profile interview-api --project-name interview-ui --cluster my-project-prism-api -f ./src/main/docker/docker-compose-gen.yml up
+      run: sudo ecs-cli compose --region eu-west-3 --ecs-profile interview-api --project-name interview-ui --cluster {{ secrets.AWS_ECS_CLUSTER }} -f ./src/main/docker/docker-compose-gen.yml up
         
     
